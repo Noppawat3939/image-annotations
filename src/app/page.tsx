@@ -5,6 +5,7 @@ import React, { type ChangeEvent, useRef, useState, useEffect } from "react";
 import * as marker from "markerjs2";
 import * as mjslive from "markerjs-live";
 import { conditionsFilter } from "@/mapping";
+import { MARKER_DEFAULT_VALUES as MARKER_VALUES } from "@/constants";
 
 const STORAGE_KEY = "markValues";
 
@@ -41,16 +42,8 @@ const MainPage = () => {
   const handleShowMark = () => {
     if (imgRef?.current) {
       const markerArea = new marker.MarkerArea(imgRef.current);
-      markerArea.settings.defaultColorSet = [
-        "red",
-        "blue",
-        "green",
-        "orange",
-        "black",
-        "pink",
-        "yellow",
-      ];
-      markerArea.settings.defaultStrokeWidth = 5;
+      markerArea.settings.defaultColorSet = MARKER_VALUES.COLORS;
+      markerArea.settings.defaultStrokeWidth = MARKER_VALUES.STROKE_WIDTH;
 
       markerArea.addEventListener("markercreate", (event) => {
         event.markerArea.createNewMarker(marker.FrameMarker);

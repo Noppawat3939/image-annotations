@@ -53,7 +53,7 @@ export const findMarkerWithCondition = (
 
   const found = markers.filter(
     (marker) =>
-      marker.typeName === mapped.typeName &&
+      marker?.typeName === mapped?.typeName &&
       (marker as MarkerBaseState & { strokeColor?: string })?.strokeColor ===
         mapped.color
   );

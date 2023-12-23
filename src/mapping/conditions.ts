@@ -1,4 +1,4 @@
-type ConditionFilter = { key: string; label: string };
+import { ConditionFilter } from "@/types";
 
 export const conditionsFilter: ConditionFilter[] = [
   { label: "รอย", key: "scratch" },

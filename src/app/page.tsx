@@ -1,19 +1,26 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import React, { type ChangeEvent, useRef, useState, useEffect } from "react";
-import * as marker from "markerjs2";
-import * as mjslive from "markerjs-live";
+import React, { type ChangeEvent, useRef, useState } from "react";
+import * as markerJs from "markerjs2";
+// import * as mjslive from "markerjs-live";
 import { conditionsFilter } from "@/mapping";
-import { MARKER_DEFAULT_VALUES as MARKER_VALUES } from "@/constants";
-
-const STORAGE_KEY = "markValues";
+import { COLOR, MARKER_DEFAULT_VALUES as MARKER_VALUES } from "@/constants";
+import { ConditionKey } from "@/types";
+import { findMarkerWithCondition } from "@/helper";
 
 const MainPage = () => {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
 
   const [selectedImage, setSelectedImage] = useState<File | null>();
+
+  const [markerState, setMarkerState] = useState<markerJs.MarkerAreaState>();
+
+  const [filterMarkers, setFilterMarkers] =
+    useState<markerJs.MarkerAreaState>();
+
+  console.log(filterMarkers);
 
   const onImageChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { files } = event.target;
@@ -23,31 +30,28 @@ const MainPage = () => {
     }
   };
 
-  const onChoosePhoto = () => {
-    inputRef?.current?.click();
-  };
-
-  const getMarkValues = () => {
-    try {
-      const value = window.localStorage.getItem(STORAGE_KEY);
-
-      if (value) {
-        return JSON.parse(value) as unknown as marker.MarkerAreaState;
-      }
-    } catch {
-      throw Error;
-    }
-  };
+  const onChoosePhoto = () => inputRef?.current?.click();
 
   const handleShowMark = () => {
     if (imgRef?.current) {
-      const markerArea = new marker.MarkerArea(imgRef.current);
+      const markerArea = new markerJs.MarkerArea(imgRef.current);
+
+      markerArea.settings.defaultColor = COLOR.RED;
       markerArea.settings.defaultColorSet = MARKER_VALUES.COLORS;
       markerArea.settings.defaultStrokeWidth = MARKER_VALUES.STROKE_WIDTH;
+      markerArea.settings.defaultFillColor = "hotpink";
 
-      markerArea.addEventListener("markercreate", (event) => {
-        event.markerArea.createNewMarker(marker.FrameMarker);
-      });
+      markerArea.availableMarkerTypes = [
+        markerJs.FrameMarker,
+        markerJs.ArrowMarker,
+        markerJs.EllipseFrameMarker,
+      ];
+
+      markerArea.uiStyleSettings.canvasBackgroundColor = "lime";
+
+      markerArea.addEventListener("markercreate", (event) =>
+        event.markerArea.createNewMarker(markerJs.FrameMarker)
+      );
 
       markerArea.addEventListener("render", (event) => {
         event.preventDefault();
@@ -56,38 +60,27 @@ const MainPage = () => {
           imgRef.current.src = event.dataUrl;
         }
 
-        console.log(event);
-
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(event.state));
+        setMarkerState(event.state);
       });
 
       markerArea.show();
 
-      if (getMarkValues()) {
-        markerArea.restoreState(getMarkValues()!);
+      if (markerState) {
+        markerArea.restoreState(markerState);
       }
     }
   };
 
-  useEffect(() => {
-    if (window) {
-      window.localStorage.removeItem(STORAGE_KEY);
-    }
-  }, []);
+  const handleFilterMarker = (selectedCondition: ConditionKey) => {
+    if (markerState?.markers) {
+      const found = findMarkerWithCondition(
+        markerState.markers,
+        selectedCondition
+      );
 
-  const onToggleViewAnnotations = () => {
-    if (imgRef?.current) {
-      const markerView = new mjslive.MarkerView(imgRef.current);
+      const filtered = { ...markerState, markers: found };
 
-      const markerArea = new marker.MarkerArea(imgRef.current);
-      console.log("click_");
-      markerView.close();
-
-      // if (!markerView.isOpen && getMarkValues() !== undefined) {
-      //   markerView.show(getMarkValues()!);
-      // } else {
-      //   markerView.close();
-      // }
+      setFilterMarkers(filtered);
     }
   };
 
@@ -107,24 +100,15 @@ const MainPage = () => {
             type="button"
             onClick={onChoosePhoto}
           >
-            Upload image
+            อัพโหลดรูปภาพ
           </button>
         </div>
-        {selectedImage && (
-          <button
-            onClick={onToggleViewAnnotations}
-            className="border-2 text-sky-500 border-sky-500 rounded-md py-1 px-2 hover:bg-sky-500 hover:text-white"
-          >
-            view annotation
-          </button>
-        )}
       </div>
       <section className="flex">
         {selectedImage && (
           <div className="cursor-pointer max-w-[60%] overflow-hidden max-h-[70%] mt-[40px]">
             <img
               ref={imgRef}
-              crossOrigin="anonymous"
               className="h-full w-full hover:scale-1 duration-200 transition-all object-cover"
               loading="lazy"
               src={URL.createObjectURL(selectedImage)}
@@ -134,12 +118,19 @@ const MainPage = () => {
           </div>
         )}
         {selectedImage && (
-          <div className="grid p-4 w-[200px] gap-1 ml-auto h-fit grid-cols-1">
-            {conditionsFilter.map(({ label, key }) => (
+          <div className="grid p-4 w-full gap-1 ml-auto h-fit grid-cols-1">
+            <span className="flex mb-2 justify-evenly items-center">
+              <h2 className="font-bold">เลือกตามเงื่อนไข:</h2>
+              <button className="border-2 border-red-500 text-red-500 px-2 py-1 rounded">
+                รีเซ็ต
+              </button>
+            </span>
+            {conditionsFilter.map(({ label, key: conditionKey }) => (
               <button
-                className="border-2 py-1 px-2 rounded hover:bg-gray-100"
-                key={key}
-                onClick={() => console.log("filter_", key)}
+                className="border-2 py-1 px-2 rounded hover:bg-gray-100 disabled:opacity-60"
+                key={conditionKey}
+                disabled={!markerState?.markers.length}
+                onClick={() => handleFilterMarker(conditionKey)}
               >
                 {label}
               </button>

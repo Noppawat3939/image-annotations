@@ -42,7 +42,6 @@ const useMarker = () => {
 
       if (getPrevData()) {
         const parsedPrevData = JSON.parse(getPrevData()!) as MarkerData[];
-
         // mock get data from first index
         const dataFirstIndx = parsedPrevData.at(0);
 
@@ -67,11 +66,9 @@ const useMarker = () => {
 
       if (mappedMarker) {
         markerArea.settings.defaultColor = mappedMarker.color;
-
         markerArea.settings.defaultFillColor = mappedMarker.color;
 
         markerArea.uiStyleSettings.hideToolbar = isHideEditMarker;
-
         markerArea.uiStyleSettings.hideToolbox = true;
 
         markerArea.availableMarkerTypes = [mappedMarker.typeName];

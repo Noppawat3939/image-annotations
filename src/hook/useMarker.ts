@@ -1,20 +1,60 @@
-import { useRef, useState } from "react";
-import { mapConditionWithMarkerState } from "@/helper";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  cleanedMarkerValue,
+  getBase64,
+  mapConditionWithMarkerState,
+} from "@/helper";
 import type { ConditionKey, Marker, MarkerData } from "@/types";
 import * as markerJs from "markerjs2";
 import { MARKER_DEFAULT_VALUES } from "@/constants";
 import uniqid from "uniqid";
+import { useImageStore } from "@/store";
 
 type Status = "loading" | "idle" | "success" | "error";
-type UseMarkerParams = { image?: File | null; wait?: number };
 
 const LOCAL_STORAGE_KEY = "data";
 
-const useMarker = (params: UseMarkerParams) => {
+const useMarker = () => {
   const imgRef = useRef<HTMLImageElement | null>(null);
+
+  const { selectedImageFile, setImageUrl } = useImageStore((store) => ({
+    selectedImageFile: store.imageFile,
+    setImageUrl: store.setImageUrl,
+  }));
 
   const [status, setStatus] = useState<Status>("idle");
   const [markerValues, setMarkerValues] = useState<Marker | null>(null);
+  const [hasPrevData, setHasPrevData] = useState(false);
+
+  useEffect(() => {
+    const prevData = window.localStorage.getItem(LOCAL_STORAGE_KEY);
+
+    if (prevData) {
+      setHasPrevData(true);
+    } else {
+      setHasPrevData(false);
+    }
+  }, []);
+
+  const getDataFromStorage = async () => {
+    try {
+      const getPrevData = () => window.localStorage.getItem(LOCAL_STORAGE_KEY);
+
+      if (getPrevData()) {
+        const parsedPrevData = JSON.parse(getPrevData()!) as MarkerData[];
+
+        // mock get first index
+        const dataFirstIndx = parsedPrevData.at(0);
+
+        if (dataFirstIndx) {
+          setImageUrl(String(dataFirstIndx.image));
+          setMarkerValues(dataFirstIndx?.marker);
+        }
+      }
+    } catch (error) {
+      setImageUrl(null);
+    }
+  };
 
   const handleAddMarker = (condition: ConditionKey) => {
     if (imgRef?.current) {
@@ -62,26 +102,25 @@ const useMarker = (params: UseMarkerParams) => {
     }
   };
 
-  const handleSavedMarkerData = () => {
-    if (params.image) {
+  const handleSavedMarkerData = async () => {
+    if (selectedImageFile) {
       setStatus("loading");
-      const image = URL.createObjectURL(params.image);
 
-      const merge = {
-        image,
-        marker: markerValues,
-        createdAt: new Date().toISOString(),
-      };
+      const convertedFileToBase64 = await getBase64(selectedImageFile);
+      const marker = markerValues ? cleanedMarkerValue(markerValues) : null;
+      const createdAt = new Date().toISOString();
+
+      const combined = { image: convertedFileToBase64, marker, createdAt };
 
       const prevData = window.localStorage.getItem("data");
 
       setTimeout(() => {
         if (prevData) {
-          const parsed = JSON.parse(prevData) as MarkerData[];
+          const _parsed = JSON.parse(prevData) as MarkerData[];
 
           const updated = [
-            ...parsed,
-            { ...merge, id: uniqid() },
+            ..._parsed,
+            { ...combined, id: uniqid() },
           ] as MarkerData[];
 
           window.localStorage.setItem(
@@ -89,7 +128,7 @@ const useMarker = (params: UseMarkerParams) => {
             JSON.stringify(updated)
           );
         } else {
-          const savedData = [{ ...merge, id: uniqid() }];
+          const savedData = [{ ...combined, id: uniqid() }];
 
           window.localStorage.setItem(
             LOCAL_STORAGE_KEY,
@@ -98,14 +137,14 @@ const useMarker = (params: UseMarkerParams) => {
         }
 
         handleReset();
-      }, params.wait || 2000);
+      }, 2000);
     }
   };
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     setMarkerValues(null);
     setStatus("idle");
-  };
+  }, []);
 
   const isLoading = status === "loading";
   const isSuccess = status === "success";
@@ -120,8 +159,14 @@ const useMarker = (params: UseMarkerParams) => {
       isSuccess,
       markerValues,
       groupedConditions: groupedSelectedConditions,
+      isDisabledGetData: !hasPrevData,
     },
-    action: { handleAddMarker, handleSavedMarkerData, handleReset },
+    action: {
+      handleAddMarker,
+      handleSavedMarkerData,
+      handleReset,
+      handleGetData: getDataFromStorage,
+    },
     ref: { imgRef },
   };
 };

@@ -14,9 +14,14 @@ const MainPage = () => {
 
   const {
     ref: { imgRef },
-    state: { isLoading, markerValues, groupedConditions },
-    action: { handleAddMarker, handleSavedMarkerData, handleReset },
-  } = useMarker({ image: selectedImage });
+    state: { isLoading, markerValues, groupedConditions, isDisabledGetData },
+    action: {
+      handleAddMarker,
+      handleSavedMarkerData,
+      handleReset,
+      handleGetData,
+    },
+  } = useMarker();
 
   const isDisabledSave = [!selectedImage, !markerValues, isLoading].some(
     Boolean
@@ -35,11 +40,17 @@ const MainPage = () => {
         <div className="w-full flex justify-center space-x-5">
           <button
             className="border-2 border-sky-600 rounded px-2 py-1 bg-sky-600 text-white disabled:opacity-60"
-            type="button"
             disabled={isLoading}
             onClick={handleChooseImage}
           >
             อัพโหลดรูปภาพ
+          </button>
+          <button
+            className="border-2 border-sky-600 rounded px-2 py-1 bg-transparent text-sky-600 disabled:opacity-50"
+            disabled={isDisabledGetData}
+            onClick={handleGetData}
+          >
+            ดึงข้อมูล
           </button>
           <button
             disabled={isDisabledSave}
@@ -52,18 +63,18 @@ const MainPage = () => {
       </div>
       <section className="flex">
         {selectedImage && (
-          <div className="cursor-pointer max-w-[60%] overflow-hidden max-h-[65%] mt-[40px]">
+          <div className="cursor-pointer w-[60%] overflow-hidden max-h-[65%] mt-[40px]">
             <img
               ref={imgRef}
               className="h-full w-full hover:scale-1 duration-200 transition-all object-cover"
               loading="lazy"
-              src={URL.createObjectURL(selectedImage)}
+              src={selectedImage}
               alt="phone-photo"
             />
           </div>
         )}
         {selectedImage && (
-          <div className=" max-w-[300px] grid p-4 w-full gap-1 ml-auto h-fit grid-cols-1">
+          <div className=" max-w-[300px] grid p-4 w-full gap-2 ml-auto h-fit grid-cols-1">
             <span className="flex mb-2 justify-evenly items-center">
               <h2 className="font-bold">เลือกตามเงื่อนไข:</h2>
               <button
@@ -77,7 +88,7 @@ const MainPage = () => {
               <button
                 className={`${
                   groupedConditions.includes(conditionKey)
-                    ? "bg-slate-300"
+                    ? "bg-slate-200"
                     : "bg-transparent"
                 }  border-2 py-1 px-2 rounded disabled:cursor-not-allowed disabled:opacity-40`}
                 key={conditionKey}

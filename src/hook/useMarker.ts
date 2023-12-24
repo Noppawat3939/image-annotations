@@ -46,6 +46,7 @@ const useMarker = () => {
         const dataFirstIndx = parsedPrevData.at(0);
 
         if (dataFirstIndx) {
+          console.log({ dataFirstIndx });
           setImageUrl(String(dataFirstIndx.image));
           setMarkerValues(dataFirstIndx?.marker);
         }

@@ -42,7 +42,7 @@ const MainPage = () => {
       <div className="bg-white flex justify-between p-4 sticky top-0 z-10">
         <div className="w-full flex justify-center space-x-5">
           <button
-            className="border-2 border-sky-600 rounded px-2 py-1 bg-sky-600 text-white disabled:opacity-60"
+            className="border-2 border-transparent hover:bg-sky-700 duration-300 transition-all rounded px-2 py-1 bg-sky-600 text-white disabled:opacity-60"
             disabled={isDisabledUploadImage}
             onClick={handleChooseImage}
           >
@@ -58,7 +58,7 @@ const MainPage = () => {
           <button
             disabled={isDisabledSave || !selectedImage}
             onClick={handleSavedMarkerData}
-            className="border-2 border-teal-600 px-2 py-1 rounded bg-teal-600 text-white disabled:opacity-50"
+            className="border-2 border-green-600 px-2 py-1 rounded bg-green-600 text-white disabled:opacity-50"
           >
             {isLoading ? "กำลังบันทึก" : "บันทึก"}
           </button>
@@ -67,13 +67,16 @@ const MainPage = () => {
       <section className="flex">
         {selectedImage && (
           <div className="mx-auto max-w-[50%] max-h-[65%] mt-[40px]">
-            <img
-              ref={imgRef}
-              className="h-full w-full hover:scale-1 duration-200 transition-all object-cover"
-              loading="lazy"
-              src={selectedImage}
-              alt="phone-photo"
-            />
+            <picture>
+              <img
+                ref={imgRef}
+                className="h-full w-full hover:scale-1 duration-200 transition-all object-cover"
+                loading="lazy"
+                src={selectedImage}
+                alt="phone-photo"
+                decoding="async"
+              />
+            </picture>
           </div>
         )}
         {selectedImage && (

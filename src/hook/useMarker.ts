@@ -25,6 +25,7 @@ const useMarker = () => {
   const [status, setStatus] = useState<Status>("idle");
   const [markerValues, setMarkerValues] = useState<Marker | null>(null);
   const [hasPrevData, setHasPrevData] = useState(false);
+  const [isHideEditMarker, setIsHideEditMarker] = useState(false);
 
   useEffect(() => {
     const prevData = window.localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -36,23 +37,26 @@ const useMarker = () => {
     }
   }, []);
 
-  const getDataFromStorage = async () => {
+  const getMarkerData = async () => {
     try {
       const getPrevData = () => window.localStorage.getItem(LOCAL_STORAGE_KEY);
 
       if (getPrevData()) {
         const parsedPrevData = JSON.parse(getPrevData()!) as MarkerData[];
 
-        // mock get first index
+        // mock get data from first index
         const dataFirstIndx = parsedPrevData.at(0);
 
         if (dataFirstIndx) {
           setImageUrl(String(dataFirstIndx.image));
           setMarkerValues(dataFirstIndx?.marker);
         }
+
+        setIsHideEditMarker(true);
       }
     } catch (error) {
       setImageUrl(null);
+      setIsHideEditMarker(false);
     }
   };
 
@@ -67,6 +71,8 @@ const useMarker = () => {
         markerArea.settings.defaultStrokeWidth =
           MARKER_DEFAULT_VALUES.STROKE_WIDTH;
         markerArea.settings.defaultFillColor = mappedMarker.color;
+
+        markerArea.uiStyleSettings.hideToolbar = isHideEditMarker;
 
         markerArea.uiStyleSettings.hideToolbox = true;
 
@@ -112,7 +118,7 @@ const useMarker = () => {
 
       const combined = { image: convertedFileToBase64, marker, createdAt };
 
-      const prevData = window.localStorage.getItem("data");
+      const prevData = window.localStorage.getItem(LOCAL_STORAGE_KEY);
 
       setTimeout(() => {
         if (prevData) {
@@ -144,14 +150,15 @@ const useMarker = () => {
   const handleReset = useCallback(() => {
     setMarkerValues(null);
     setStatus("idle");
+    setIsHideEditMarker(false);
   }, []);
-
-  const isLoading = status === "loading";
-  const isSuccess = status === "success";
 
   const groupedSelectedConditions = markerValues
     ? Object.keys(markerValues)
     : [];
+
+  const isLoading = status === "loading";
+  const isSuccess = status === "success";
 
   return {
     state: {
@@ -160,12 +167,13 @@ const useMarker = () => {
       markerValues,
       groupedConditions: groupedSelectedConditions,
       isDisabledGetData: !hasPrevData,
+      isHideEditMarker,
     },
     action: {
       handleAddMarker,
       handleSavedMarkerData,
       handleReset,
-      handleGetData: getDataFromStorage,
+      handleGetData: getMarkerData,
     },
     ref: { imgRef },
   };

@@ -20,3 +20,9 @@ export const MARKER_DEFAULT_VALUES = {
   ],
   STROKE_WIDTH: 5,
 };
+
+export const MARKER_SYMBOL = {
+  SQUARE: "FrameMarker",
+  ARROW: "ArrowMarker",
+  CIRCLE_OUTLINE: "EllipseFrameMarker",
+} as const;

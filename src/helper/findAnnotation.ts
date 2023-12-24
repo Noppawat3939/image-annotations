@@ -1,43 +1,43 @@
-import { COLOR } from "@/constants";
+import { COLOR, MARKER_SYMBOL } from "@/constants";
 import { ConditionKey } from "@/types";
 import { type MarkerBaseState } from "markerjs2";
 
 export const mapConditionWithMarkerState = (_key: ConditionKey) => {
   const mapKeyWithMarker = {
     scratch: {
-      typeName: "FrameMarker",
+      typeName: MARKER_SYMBOL.SQUARE,
       color: COLOR.RED,
     },
     screen_scratch: {
-      typeName: "FrameMarker",
+      typeName: MARKER_SYMBOL.SQUARE,
       color: COLOR.BLUE,
     },
     screen_dent: {
-      typeName: "FrameMarker",
+      typeName: MARKER_SYMBOL.SQUARE,
       color: COLOR.GREEN,
     },
     dent: {
-      typeName: "FrameMarker",
+      typeName: MARKER_SYMBOL.SQUARE,
       color: COLOR.ORANGE,
     },
     screen_cracked: {
-      typeName: "EllipseFrameMarker",
+      typeName: MARKER_SYMBOL.CIRCLE_OUTLINE,
       color: COLOR.RED,
     },
     back_glass_cracked: {
-      typeName: "EllipseFrameMarker",
+      typeName: MARKER_SYMBOL.CIRCLE_OUTLINE,
       color: COLOR.ORANGE,
     },
     back_camera_crack: {
-      typeName: "EllipseFrameMarker",
+      typeName: MARKER_SYMBOL.CIRCLE_OUTLINE,
       color: COLOR.BLUE,
     },
     pixel_white: {
-      typeName: "ArrowMarker",
+      typeName: MARKER_SYMBOL.ARROW,
       color: COLOR.RED,
     },
     pixel_black: {
-      typeName: "ArrowMarker",
+      typeName: MARKER_SYMBOL.ARROW,
       color: COLOR.BLUE,
     },
   } as Record<typeof _key, MarkerBaseState & { color: string }>;

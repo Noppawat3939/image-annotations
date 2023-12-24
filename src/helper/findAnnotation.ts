@@ -21,15 +21,15 @@ export const mapConditionWithMarkerState = (_key: ConditionKey) => {
       color: COLOR.ORANGE,
     },
     screen_cracked: {
-      typeName: MARKER_SYMBOL.CIRCLE_OUTLINE,
+      typeName: MARKER_SYMBOL.CIRCLE,
       color: COLOR.RED,
     },
     back_glass_cracked: {
-      typeName: MARKER_SYMBOL.CIRCLE_OUTLINE,
+      typeName: MARKER_SYMBOL.CIRCLE,
       color: COLOR.ORANGE,
     },
     back_camera_crack: {
-      typeName: MARKER_SYMBOL.CIRCLE_OUTLINE,
+      typeName: MARKER_SYMBOL.CIRCLE,
       color: COLOR.BLUE,
     },
     pixel_white: {
@@ -39,6 +39,18 @@ export const mapConditionWithMarkerState = (_key: ConditionKey) => {
     pixel_black: {
       typeName: MARKER_SYMBOL.ARROW,
       color: COLOR.BLUE,
+    },
+    pink_burn: {
+      typeName: MARKER_SYMBOL.SQUARE_COVER,
+      color: COLOR.RGBA.PINK_40,
+    },
+    yellow_burn: {
+      typeName: MARKER_SYMBOL.SQUARE_COVER,
+      color: COLOR.RGBA.YELLOW_40,
+    },
+    overlay_burn: {
+      typeName: MARKER_SYMBOL.SQUARE_COVER,
+      color: COLOR.RGBA.RED_40,
     },
   } as Record<typeof _key, MarkerBaseState & { color: string }>;
 

@@ -6,7 +6,6 @@ import {
 } from "@/helper";
 import type { ConditionKey, Marker, MarkerData } from "@/types";
 import * as markerJs from "markerjs2";
-import { MARKER_DEFAULT_VALUES } from "@/constants";
 import uniqid from "uniqid";
 import { useImageStore } from "@/store";
 
@@ -68,8 +67,7 @@ const useMarker = () => {
 
       if (mappedMarker) {
         markerArea.settings.defaultColor = mappedMarker.color;
-        markerArea.settings.defaultStrokeWidth =
-          MARKER_DEFAULT_VALUES.STROKE_WIDTH;
+
         markerArea.settings.defaultFillColor = mappedMarker.color;
 
         markerArea.uiStyleSettings.hideToolbar = isHideEditMarker;
@@ -160,6 +158,12 @@ const useMarker = () => {
   const isLoading = status === "loading";
   const isSuccess = status === "success";
 
+  const isDisabledUploadImage = [isLoading, isHideEditMarker].some(Boolean);
+
+  const isDisabledSave = [isHideEditMarker, !markerValues, isLoading].some(
+    Boolean
+  );
+
   return {
     state: {
       isLoading,
@@ -168,6 +172,8 @@ const useMarker = () => {
       groupedConditions: groupedSelectedConditions,
       isDisabledGetData: !hasPrevData,
       isHideEditMarker,
+      isDisabledUploadImage,
+      isDisabledSave,
     },
     action: {
       handleAddMarker,

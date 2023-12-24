@@ -16,10 +16,11 @@ const MainPage = () => {
     ref: { imgRef },
     state: {
       isLoading,
-      markerValues,
+      isDisabledUploadImage,
       isHideEditMarker,
       groupedConditions,
       isDisabledGetData,
+      isDisabledSave,
     },
     action: {
       handleAddMarker,
@@ -28,15 +29,6 @@ const MainPage = () => {
       handleGetData,
     },
   } = useMarker();
-
-  const isDisabledSave = [
-    isHideEditMarker,
-    !selectedImage,
-    !markerValues,
-    isLoading,
-  ].some(Boolean);
-
-  const isDisabledUploadImage = [isLoading, isHideEditMarker].some(Boolean);
 
   return (
     <div>
@@ -64,7 +56,7 @@ const MainPage = () => {
             ดึงข้อมูล
           </button>
           <button
-            disabled={isDisabledSave}
+            disabled={isDisabledSave || !selectedImage}
             onClick={handleSavedMarkerData}
             className="border-2 border-teal-600 px-2 py-1 rounded bg-teal-600 text-white disabled:opacity-50"
           >
@@ -74,10 +66,10 @@ const MainPage = () => {
       </div>
       <section className="flex">
         {selectedImage && (
-          <div className="cursor-pointer mx-auto w-[60%] overflow-hidden max-h-[65%] mt-[40px]">
+          <div className="mx-auto max-w-[50%] max-h-[65%] mt-[40px]">
             <img
               ref={imgRef}
-              className="h-full max-w-[70%] hover:scale-1 duration-200 transition-all object-cover"
+              className="h-full w-full hover:scale-1 duration-200 transition-all object-cover"
               loading="lazy"
               src={selectedImage}
               alt="phone-photo"
@@ -85,7 +77,7 @@ const MainPage = () => {
           </div>
         )}
         {selectedImage && (
-          <div className=" max-w-[400px] grid p-4 w-full gap-2 ml-auto h-fit grid-cols-1">
+          <div className="max-w-[400px] grid p-4 w-full gap-2 ml-auto h-fit grid-cols-1">
             <span className="flex mb-2 justify-evenly items-center">
               <h2 className="font-bold">เลือกตามเงื่อนไข:</h2>
               <button

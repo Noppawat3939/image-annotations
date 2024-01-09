@@ -6,6 +6,7 @@ import {
 } from "@/helper";
 import type { ConditionKey, Marker, MarkerData } from "@/types";
 import * as markerJs from "markerjs2";
+import * as markerJsLive from "markerjs-live";
 import uniqid from "uniqid";
 import { useImageStore } from "@/store";
 
@@ -46,7 +47,6 @@ const useMarker = () => {
         const dataFirstIndx = parsedPrevData.at(0);
 
         if (dataFirstIndx) {
-          console.log({ dataFirstIndx });
           setImageUrl(String(dataFirstIndx.image));
           setMarkerValues(dataFirstIndx?.marker);
         }
@@ -56,6 +56,23 @@ const useMarker = () => {
     } catch (error) {
       setImageUrl(null);
       setIsHideEditMarker(false);
+    }
+  };
+
+  const showMarker = (condition: ConditionKey) => {
+    if (imgRef.current) {
+      const markerLive = new markerJsLive.MarkerView(imgRef.current);
+      const getPrevData = () => window.localStorage.getItem(LOCAL_STORAGE_KEY);
+
+      if (getPrevData()) {
+        const parsedPrevData = JSON.parse(getPrevData()!) as MarkerData[];
+        // mock get data from first index
+        const dataFirstIndx = parsedPrevData.at(0);
+
+        if (dataFirstIndx) {
+          markerLive.show(dataFirstIndx.marker[condition]);
+        }
+      }
     }
   };
 
@@ -178,6 +195,7 @@ const useMarker = () => {
       handleSavedMarkerData,
       handleReset,
       handleGetData: getMarkerData,
+      handleShowMarker: showMarker,
     },
     ref: { imgRef },
   };

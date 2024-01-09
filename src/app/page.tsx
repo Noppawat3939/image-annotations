@@ -27,6 +27,7 @@ const MainPage = () => {
       handleSavedMarkerData,
       handleReset,
       handleGetData,
+      handleShowMarker,
     },
   } = useMarker();
 
@@ -99,7 +100,11 @@ const MainPage = () => {
                     : "bg-transparent"
                 }  border-2 py-1 px-2 rounded disabled:cursor-not-allowed disabled:opacity-40`}
                 key={conditionKey}
-                onClick={() => handleAddMarker(conditionKey)}
+                onClick={() =>
+                  isHideEditMarker
+                    ? handleShowMarker(conditionKey)
+                    : handleAddMarker(conditionKey)
+                }
               >
                 {label}
               </button>
